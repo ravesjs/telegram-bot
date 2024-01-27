@@ -7,6 +7,7 @@ import connectMongoDB from './mongo.js'
 import cartScene from '../scenes/cart.scene.js'
 
 connectMongoDB()
+createCollectionWithData() // Создаёт коллекцию products на основе данных из data.js
 
 const bot = new Telegraf(config.BOT_TOKEN)
 if (!config.BOT_TOKEN) throw new Error('"BOT_TOKEN" is required!')
