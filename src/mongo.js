@@ -1,5 +1,9 @@
 import config from './config.js';
 import mongoose from 'mongoose';
+import data from './data.js';
+import Product from '../models/product.model.js';
+
+const products = data.products
 
 const connectMongoDB = async () => {
   try {
@@ -24,5 +28,17 @@ const connectMongoDB = async () => {
     throw error
   }
 };
+
+export async function createCollectionWithData() {
+  try {
+    await Product.createCollection();
+    await Product.insertMany(products);
+    console.log('Коллекция успешно создана и заполнена данными.');
+  } catch (error) {
+    console.error('Ошибка при создании коллекции:', error);
+  } finally {
+    mongoose.disconnect();
+  }
+}
 
 export default connectMongoDB;
