@@ -1,7 +1,6 @@
 export default {
   products: [
     {
-      _id: '1',
       name: 'Палестина',
       category: 'Часы',
       image: '/images/watch1.jpg',
@@ -11,7 +10,6 @@ export default {
       file_id: 'AgACAgIAAxkDAAMMZbI8L-nJaVvvoUZDeUeStRYuHzwAAufWMRukZZFJVDXFNCgg7wMBAAMCAANzAAM0BA',
     },
     {
-      _id: '2',
       name: 'Светло-серые',
       category: 'Часы',
       image: '/images/watch2.jpg',
@@ -21,7 +19,6 @@ export default {
       file_id: 'AgACAgIAAxkDAAMQZbI8Ty_UwKz-WllgRd5IdSD0H1sAAurWMRukZZFJ6McMVTdmLQIBAAMCAANtAAM0BA',
     },
     {
-      _id: '3',
       name: 'Пирог',
       category: 'Часы',
       image: '/images/watch3.jpg',
@@ -31,7 +28,6 @@ export default {
       file_id: 'AgACAgIAAxkDAAMTZbI8efI8uXVWd45mdm4bwHmerPwAAuzWMRukZZFJkgoo2yUlPI4BAAMCAAN4AAM0BA',
     },
     {
-      _id: '4',
       name: 'Океан',
       category: 'Часы',
       image: '/images/watch4.jpg',
