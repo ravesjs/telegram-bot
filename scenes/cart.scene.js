@@ -1,8 +1,10 @@
-import { Scenes } from 'telegraf'
-import { cartKeyboard } from '../src/inlineKeyboard.js'
+import { Scenes, Markup } from 'telegraf'
 
 const cartScene = new Scenes.BaseScene('CART_SCENE')
 
-cartScene.enter
+const cartKeyboard = Markup.inlineKeyboard([
+  Markup.button.callback('Назад', 'BACK'),
+  Markup.button.callback('Купить', 'CHECKOUT'),
+]);
 
 export default cartScene
