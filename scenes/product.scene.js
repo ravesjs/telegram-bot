@@ -25,7 +25,7 @@ productScene.hears('Список товаров', async (ctx) => {
   }
 })
 
-productScene.action(/product_(\d+)/, async (ctx) => {
+productScene.action(/product_([0-9a-fA-F]{24})/, async (ctx) => {
   try {
     const productId = ctx.match[1]
     const product = await Product.findById(productId)
