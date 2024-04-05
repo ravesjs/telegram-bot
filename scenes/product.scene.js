@@ -1,10 +1,9 @@
 import { Scenes } from 'telegraf'
 import getKeyboard from '../src/inlineKeyboard.js'
 import Product from '../models/product.model.js'
+import Cart from '../models/cart.model.js'
 
 const productScene = new Scenes.BaseScene('PRODUCT_SCENE')
-
-let cartCount = 0
 
 productScene.hears('Список товаров', async (ctx) => {
   try {
@@ -73,49 +72,67 @@ productScene.action(/product_([0-9a-fA-F]{24})/, async (ctx) => {
   }
 })
 
-async function updateCartButton(ctx, cartCount) {
+async function updateCartButton(ctx) {
   try {
-    const cartText = cartCount === 0 ? 'Корзина' : `Корзина [${cartCount}]`
-    await ctx.telegram.editMessageReplyMarkup(ctx.chat.id, ctx.session.lastId, undefined, {
-      inline_keyboard: [
-        [
-          { text: 'Удалить из корзины', callback_data: 'Remove' },
-          { text: 'Добавить в корзину', callback_data: 'Add' },
-        ],
-        [{ text: cartText, callback_data: 'Cart' }],
-      ],
-    })
+      let cartText = 'Корзина';
+      const userId = ctx.from.id.toString();
+      const cart = await Cart.findOne({ userId });
+      if (cart) {
+          const cartCount = cart.items.reduce((total, item) => total + item.quantity, 0);
+          cartText += ` [${cartCount}]`;
+      }
+      await ctx.telegram.editMessageReplyMarkup(ctx.chat.id, ctx.session.lastId, undefined, {
+          inline_keyboard: [
+              [
+                  { text: 'Удалить из корзины', callback_data: 'Remove' },
+                  { text: 'Добавить в корзину', callback_data: 'Add' },
+              ],
+              [{ text: cartText, callback_data: 'Cart' }],
+          ],
+      });
   } catch (error) {
-    console.error('Ошибка при обновлении кнопки "Корзина":', error)
+      console.error('Ошибка при обновлении кнопки "Корзина":', error);
   }
 }
 
 productScene.action('Add', async (ctx) => {
   try {
-  await ctx.answerCbQuery()
-  const productId = ctx.match[1]
-  const product = await Product.findById(productId)
-  if (product && product.countInStock > 0) {
-    if (cartCount < product.countInStock) {
-      cartCount++
-      await updateCartButton(ctx, cartCount)
-    }
-  }} catch (error) {
-    console.error('Ошибка в обработчике "Add":', error)
+      const productId = ctx.match[1];
+      const userId = ctx.from.id.toString();
+      let cart = await Cart.findOne({ userId });
+
+      if (!cart) {
+          cart = new Cart({ userId });
+      }
+      const existingItemIndex = cart.items.findIndex(item => item.productId.toString() === productId);
+      if (existingItemIndex !== -1) {
+          cart.items[existingItemIndex].quantity++;
+      } else {
+          cart.items.push({ productId, quantity: 1 });
+      }
+
+      await cart.save();
+
+      await ctx.answerCbQuery();
+      await updateCartButton(ctx);
+  } catch (error) {
+      console.error('Ошибка при добавлении товара в корзину:', error);
   }
-})
+});
 
 productScene.action('Remove', async (ctx) => {
+  const productId = ctx.match[1]
   await ctx.answerCbQuery()
-  if (cartCount > 0) {
-    cartCount--
-    await updateCartButton(ctx, cartCount)
-  }
+  await updateCartButton(ctx)
 })
 
 productScene.action('Cart', async (ctx) => {
-  await ctx.answerCbQuery()
-  await ctx.scene.enter('CART_SCENE')
-})
+  try {
+      await ctx.answerCbQuery();
+      await ctx.scene.enter('CART_SCENE');
+  } catch (error) {
+      console.error('Ошибка при переходе в сцену корзины:', error);
+  }
+});
 
 export default productScene

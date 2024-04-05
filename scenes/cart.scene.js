@@ -1,10 +1,10 @@
-import { Scenes, Markup } from 'telegraf'
+import { Scenes } from 'telegraf'
+import Cart from '../models/cart.model.js';
 
 const cartScene = new Scenes.BaseScene('CART_SCENE')
 
-const cartKeyboard = Markup.inlineKeyboard([
-  Markup.button.callback('Назад', 'BACK'),
-  Markup.button.callback('Купить', 'CHECKOUT'),
-]);
+cartScene.action('BACK', async (ctx) => {
+ 
+});
 
 export default cartScene

@@ -1,7 +1,7 @@
-import mongoose from 'mongoose'
+import mongoose from 'mongoose';
 
 const cartSchema = new mongoose.Schema({
-  userId: { type: String, required: true },
+  userId: { type: String, required: true, unique: true },
   items: [
     {
       productId: { type: mongoose.Schema.Types.ObjectId, ref: 'Product', required: true },
@@ -12,4 +12,4 @@ const cartSchema = new mongoose.Schema({
 
 const Cart = mongoose.model('Cart', cartSchema);
 
-export default Cart
+export default Cart;

@@ -7,25 +7,25 @@ export default {
       description: 'Это хорошие часы',
       price: 11000,
       countInStock: 6,
-      file_id: '111',  //get_file в index.js
+      file_id: '1',
     },
     {
       name: 'Светло-серые',
       category: 'Часы',
       image: '/images/watch2.jpg',
-      description: 'Это классные часы',
+      description: 'Это часы',
       price: 9000,
       countInStock: 1,
-      file_id: '222',
+      file_id: '2',
     },
     {
       name: 'Пирог',
       category: 'Часы',
       image: '/images/watch3.jpg',
-      description: 'Это хорошие часы',
+      description: 'Это красивые часы',
       price: 12000,
       countInStock: 3,
-      file_id: '333',
+      file_id: '3',
     },
     {
       name: 'Океан',
@@ -34,7 +34,7 @@ export default {
       description: 'Это хорошие часы',
       price: 5000,
       countInStock: 8,
-      file_id: '444',
+      file_id: '4',
     }
   ]
 }
