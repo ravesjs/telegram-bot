@@ -4,6 +4,7 @@ import Product from '../models/product.model.js'
 import Cart from '../models/cart.model.js'
 
 const productScene = new Scenes.BaseScene('PRODUCT_SCENE')
+// TODO: Сделать счётчик в корзине рабочим
 let count = 0
 productScene.hears('Список товаров', async (ctx) => {
   try {
@@ -100,13 +101,13 @@ productScene.action(/Add_([0-9a-fA-F]{24})/, async (ctx) => {
     console.error('Ошибка при добавлении товара в корзину:', error)
   }
 })
-
+// TODO: Сделать кнопку Remove
 productScene.action(/Remove_([0-9a-fA-F]{24})/, async (ctx) => {
   const userId = ctx.from.id
   const productId = ctx.match[1]
   await ctx.answerCbQuery()
 })
-
+// Сделать кнопку Cart
 productScene.action('Cart', async (ctx) => {
   try {
     await ctx.answerCbQuery()
