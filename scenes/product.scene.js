@@ -92,25 +92,8 @@ async function updateCartButton(ctx) {
 
 productScene.action(/Add_([0-9a-fA-F]{24})/, async (ctx) => {
   try {
-    const userId = ctx.from.id
     const productId = ctx.match[1]
-    let cart = await Cart.findOne({ userId: userId })
-    const item = cart.items.find((item) => item.productId.equals(productId))
-    if (!cart) {
-      cart = new Cart({
-        userId: userId,
-        items: [{ productId: productId }],
-      })
-    } else {
-      if (!item) {
-        item.quantity = 0
-      }
-      if (item) {
-        item.quantity++
-      } else {
-        cart.items.push({ productId: productId })
-      }
-    }
+    
     await updateCartButton(ctx)
     await cart.save()
     await ctx.answerCbQuery('Товар добавлен в корзину!')
