@@ -5,7 +5,7 @@ import Cart from '../models/cart.model.js'
 
 const productScene = new Scenes.BaseScene('PRODUCT_SCENE')
 // TODO: Сделать счётчик в корзине рабочим
-let count = 0
+
 productScene.hears('Список товаров', async (ctx) => {
   try {
     ctx.session = ctx.session || {}
@@ -30,12 +30,9 @@ productScene.action(/product_([0-9a-fA-F]{24})/, async (ctx) => {
   try {
     const productId = ctx.match[1]
     const product = await Product.findById(productId)
+   
     if (product) {
       await ctx.answerCbQuery()
-
-      if (ctx.session.lastId) {
-        await ctx.telegram.deleteMessage(ctx.chat.id, ctx.session.lastId)
-      }
       const nameLength = product.name.length
       const spacesToAdd = Math.max(0, Math.floor((30 - nameLength) / 2))
       const caption = `
@@ -62,10 +59,11 @@ productScene.action(/product_([0-9a-fA-F]{24})/, async (ctx) => {
               { text: 'Удалить из корзины', callback_data: `Remove_${productId}` },
               { text: 'Добавить в корзину', callback_data: `Add_${productId}` },
             ],
-            [{ text: `Корзина[${count}]`, callback_data: `Cart` }],
+            [{ text: `Корзина [${quantity}]`, callback_data: `Cart` }],
           ],
         },
       })
+
       ctx.session = ctx.session || {}
       ctx.session.lastId = message.message_id
     } else {
@@ -76,25 +74,44 @@ productScene.action(/product_([0-9a-fA-F]{24})/, async (ctx) => {
   }
 })
 
+async function updateCartButton(ctx) {
+  try {
+    await ctx.telegram.editMessageReplyMarkup(ctx.chat.id, ctx.session.lastId, undefined, {
+      inline_keyboard: [
+        [
+          { text: 'Удалить из корзины', callback_data: `Remove_${productId}` },
+          { text: 'Добавить в корзину', callback_data: `Add_${productId}` },
+        ],
+        [{ text: `Корзина [${quantity}]`, callback_data: 'Cart' }],
+      ],
+    })
+  } catch (error) {
+    console.error('Ошибка при обновлении кнопки "Корзина":', error)
+  }
+}
+
 productScene.action(/Add_([0-9a-fA-F]{24})/, async (ctx) => {
   try {
     const userId = ctx.from.id
     const productId = ctx.match[1]
-    count = count++
     let cart = await Cart.findOne({ userId: userId })
+    const item = cart.items.find((item) => item.productId.equals(productId))
     if (!cart) {
       cart = new Cart({
         userId: userId,
         items: [{ productId: productId }],
       })
     } else {
-      const existingItem = cart.items.find((item) => item.productId.equals(productId))
-      if (existingItem) {
-        existingItem.quantity++
+      if (!item) {
+        item.quantity = 0
+      }
+      if (item) {
+        item.quantity++
       } else {
         cart.items.push({ productId: productId })
       }
     }
+    await updateCartButton(ctx)
     await cart.save()
     await ctx.answerCbQuery('Товар добавлен в корзину!')
   } catch (error) {
@@ -103,11 +120,13 @@ productScene.action(/Add_([0-9a-fA-F]{24})/, async (ctx) => {
 })
 // TODO: Сделать кнопку Remove
 productScene.action(/Remove_([0-9a-fA-F]{24})/, async (ctx) => {
-  const userId = ctx.from.id
   const productId = ctx.match[1]
+ 
+  await updateCartButton(ctx)
+  await cart.save()
   await ctx.answerCbQuery()
 })
-// Сделать кнопку Cart
+// TODO: Сделать кнопку Cart
 productScene.action('Cart', async (ctx) => {
   try {
     await ctx.answerCbQuery()
